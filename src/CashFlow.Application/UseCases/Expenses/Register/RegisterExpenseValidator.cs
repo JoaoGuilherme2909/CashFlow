@@ -1,5 +1,6 @@
 ﻿using CashFlow.Communication.Enums;
 using CashFlow.Communication.Requests;
+using CashFlow.Exception;
 using FluentValidation;
 
 namespace CashFlow.Application.UseCases.Expenses.Register;
@@ -10,18 +11,18 @@ public class RegisterExpenseValidator : AbstractValidator<RequestRegisterExpense
     {
         RuleFor(expense => expense.Title)
             .NotEmpty()
-            .WithMessage("Title is required");
+            .WithMessage(ResourceErrorMessages.TITLE_REQUIRED);
 
         RuleFor(expense => expense.Amount)
             .GreaterThan(0)
-            .WithMessage("Amount must be greater than 0");
+            .WithMessage(ResourceErrorMessages.AMOUNT_MUST_BE_GREATER_THAN_ZERO);
         
         RuleFor(expense => expense.paymentType)
             .IsInEnum()
-            .WithMessage("Payment type invalid");
+            .WithMessage(ResourceErrorMessages.PAYMENT_TYPE_INVALID);
         
         RuleFor(expense => expense.Date)
             .LessThanOrEqualTo(DateTime.UtcNow)
-            .WithMessage("You cannot set an expense for the future");
+            .WithMessage(ResourceErrorMessages.EXPENSES_CANNOT_FOR_THE_FUTURE);
     }
 }

@@ -11,7 +11,7 @@ public class RegisterExpenseUseCase
     {
         validate(request);
 
-        return new ResponseRegisterExpenseJson();
+        return new ResponseRegisterExpenseJson() { Title = request.Title };
     }
 
     private void validate(RequestRegisterExpenseJson request)
