@@ -1,0 +1,15 @@
+services:
+  db:
+    image: mysql/mysql-server:latest
+    container_name: my-mysql
+    restart: always
+    enviroment:
+      - MYSQL_DATABASE=mysqlDB
+      - MYSQL_ROOT_PASSWORD=mysqlPW
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql-volume: /var/lib/mysql
+volumes:
+  mysql-volume:
+    driver: local
