@@ -1,15 +1,15 @@
 services:
-  db:
-    image: mysql/mysql-server:latest
-    container_name: my-mysql
+  mysql:
+    image: mysql:latest
+    container_name: meu-mysql
     restart: always
-    enviroment:
-      - MYSQL_DATABASE=mysqlDB
-      - MYSQL_ROOT_PASSWORD=mysqlPW
+    environment:
+      MYSQL_ROOT_PASSWORD: cashFlower
+      MYSQL_DATABASE: cashFlow
     ports:
-      - '3306:3306'
+      - "3306:3306"
     volumes:
-      - mysql-volume: /var/lib/mysql
+      - mysql_data:/var/lib/mysql
+
 volumes:
-  mysql-volume:
-    driver: local
+  mysql_data:
