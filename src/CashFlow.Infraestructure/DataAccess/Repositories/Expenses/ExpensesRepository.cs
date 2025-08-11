@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CashFlow.Infraestructure.DataAccess.Repositories.Expenses;
 
-internal class ExpensesRepository : IExpenseRepository
+internal class ExpensesRepository : IExpenseReadOnlyRepository, IExpenseWriteOnlyRepository
 {
     private readonly CashFlowDbContext _dbContext;
     
@@ -27,5 +27,10 @@ internal class ExpensesRepository : IExpenseRepository
         var total = await _dbContext.Expenses.SumAsync(i => i.Amount);
 
         return (expenses, count, total);
+    }
+
+    public async Task<Expense?> GetById(long id)
+    {
+        return await _dbContext.Expenses.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id);
     }
 }

@@ -8,10 +8,10 @@ namespace CashFlow.Application.UseCases.Expenses.GetAll;
 
 public class GetAllExpensesUseCase : IGetAllExpensesUseCase
 {
-    private readonly IExpenseRepository _repository;
+    private readonly IExpenseReadOnlyRepository _repository;
     private readonly IMapper _mapper;
 
-    public GetAllExpensesUseCase(IExpenseRepository repository, IMapper mapper)
+    public GetAllExpensesUseCase(IExpenseReadOnlyRepository repository, IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
@@ -26,8 +26,11 @@ public class GetAllExpensesUseCase : IGetAllExpensesUseCase
             throw new NotFoundExpenseException(ResourceErrorMessages.NOT_FOUND_EXPENSE);
         }
         
-        var MappedExpenses = expenses.expenses.Select(i => _mapper.Map<ResponseGetExpenseJson>(i)).ToList();
-
-        return new ResponseGetAllExpensesJson() {count = expenses.count, Expenses = MappedExpenses, Total = expenses.total };
+        return new ResponseGetAllExpensesJson()
+        {
+            count = expenses.count, 
+            Expenses = _mapper.Map<List<ResponseGetExpenseJson>>(expenses.expenses), 
+            Total = expenses.total
+        };
     }
 }
