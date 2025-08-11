@@ -3,6 +3,7 @@ using CashFlow.Application.UseCases.Expenses.GetById;
 using CashFlow.Application.UseCases.Expenses.Register;
 using CashFlow.Communication.Requests;
 using CashFlow.Communication.Responses;
+using CashFlow.Domain.Repositories.Expenses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashFlow.Api.Controllers;
@@ -40,6 +41,12 @@ public class ExpensesController : ControllerBase
         var response = await useCase.Execute(id);
         
         return Ok(response);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTask([FromServices] IExpenseWriteOnlyRepository useCase, [FromRoute] long id)
+    {
+        var response = await useCase.Delete();
     }
 }
  
