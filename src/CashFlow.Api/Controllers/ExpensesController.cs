@@ -1,4 +1,5 @@
-﻿using CashFlow.Application.UseCases.Expenses.GetAll;
+﻿using CashFlow.Application.UseCases.Expenses.DeleteById;
+using CashFlow.Application.UseCases.Expenses.GetAll;
 using CashFlow.Application.UseCases.Expenses.GetById;
 using CashFlow.Application.UseCases.Expenses.Register;
 using CashFlow.Communication.Requests;
@@ -44,9 +45,11 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTask([FromServices] IExpenseWriteOnlyRepository useCase, [FromRoute] long id)
+    public async Task<IActionResult> DeleteTask([FromServices] IDeleteExpenseByIdUseCase useCase, [FromRoute] long id)
     {
-        var response = await useCase.Delete();
+        var response = await useCase.Execute(id);
+        
+        return NoContent();
     }
 }
  
