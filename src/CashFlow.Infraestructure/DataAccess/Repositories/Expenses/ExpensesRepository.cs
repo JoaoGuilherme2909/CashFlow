@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CashFlow.Infraestructure.DataAccess.Repositories.Expenses;
 
-internal class ExpensesRepository : IExpenseReadOnlyRepository, IExpenseWriteOnlyRepository
+internal class ExpensesRepository : IExpenseReadOnlyRepository, IExpenseWriteOnlyRepository, IExpenseUpdateOnlyRepository
 {
     private readonly CashFlowDbContext _dbContext;
     
@@ -39,5 +39,23 @@ internal class ExpensesRepository : IExpenseReadOnlyRepository, IExpenseWriteOnl
         var expense = await _dbContext.Expenses.Where(i => i.Id == id).ExecuteDeleteAsync();
 
         return expense;
+    }
+
+    public async Task<int> Update(Expense expense)
+    {
+        var rowsAffected = await _dbContext.Expenses.Where(e => e.Id == expense.Id).ExecuteUpdateAsync(setters => 
+            setters.SetProperty(p => p.Title, expense.Title)
+                   .SetProperty(p => p.Description, expense.Description)
+                   .SetProperty(p => p.Date, expense.Date)
+                   .SetProperty(p => p.PaymentType, expense.PaymentType)
+                   .SetProperty(p => p.Amount, expense.Amount)
+        );
+
+        return rowsAffected;
+    }
+
+    public Task<List<Expense>> FilterByMonth(DateOnly date)
+    {
+       
     }
 }
