@@ -1,10 +1,12 @@
-﻿using CashFlow.Domain.Repositories.Expenses;
+﻿using CashFlow.Domain.Enums;
+using CashFlow.Domain.Repositories.Expenses;
 using ClosedXML.Excel;
 
 namespace CashFlow.Application.UseCases.Expenses.Reports.Excel;
 
 public class GenerateExpensesReportExcel : IGenerateExpensesReportExcel
 {
+    private const String CURRENCY_SYMBOL = "$";
     private readonly IExpenseReadOnlyRepository _repository;
     public GenerateExpensesReportExcel(IExpenseReadOnlyRepository repository)
     {
@@ -13,7 +15,12 @@ public class GenerateExpensesReportExcel : IGenerateExpensesReportExcel
 
     public async Task<byte[]> Execute(DateOnly month)
     {
-        var workBook = new XLWorkbook();
+        var expenses = await _repository.FilterByMonth(month);
+
+        if (expenses.Count == 0)
+            return [];
+
+        using var workBook = new XLWorkbook();
 
         workBook.Author = "CashFlow";
 
@@ -26,11 +33,42 @@ public class GenerateExpensesReportExcel : IGenerateExpensesReportExcel
         
         InsertHeader(workSheet);
 
+        var row = 2;
+        foreach (var expense in expenses)
+        {
+            workSheet.Cell($"A{row}").Value = expense.Title;
+            
+            workSheet.Cell($"B{row}").Value = expense.Date;
+            
+            workSheet.Cell($"C{row}").Value = ConvertPaymentType(expense.PaymentType);
+            
+            workSheet.Cell($"D{row}").Value = expense.Amount;
+            workSheet.Cell($"D{row}").Style.NumberFormat.Format = $"-{CURRENCY_SYMBOL} #,##0.00";
+
+            workSheet.Cell($"E{row}").Value = expense.Description;
+            
+            row++;
+        }
+
+        workSheet.Columns().AdjustToContents();
+
         var file = new MemoryStream();
 
         workBook.SaveAs(file);
 
         return file.ToArray();
+    }
+
+    private string ConvertPaymentType(PaymentType payment)
+    {
+        return payment switch
+        {
+            PaymentType.Cash => "Cash",
+            PaymentType.CreditCard => "Credit Card",
+            PaymentType.DebitCard => "Debit Card",
+            PaymentType.EletronicTransfer => "Electronic Transfer",
+            _ => string.Empty
+        };
     }
 
     private void InsertHeader(IXLWorksheet workSheet)
